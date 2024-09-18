@@ -1,0 +1,112 @@
+Book Collection Management System:
+
+SQL Queries for Use Cases:
+
+1. View All Books by Genre:
+   - As a user, I want to view all books in a specific genre so that I can see what books are available in that category.
+  
+   SELECT * FROM BookData 
+   WHERE GenreID = (SELECT GenreID FROM GenreData WHERE GenreName = 'Science Fiction');
+   ```
+
+2. Find Books Loaned to a Specific Friend:
+   - As a user, I want to find all books that I have loaned to a specific friend so that I can track which books they currently have.
+
+   SELECT BookData.Title, LoanData.LoanDate, LoanData.DueDate 
+   FROM BookData 
+   JOIN LoanData ON BookData.BookID = LoanData.BookID 
+   JOIN FriendsData ON LoanData.FriendID = FriendsData.FriendID 
+   WHERE FriendsData.FriendName = 'Emily White';
+   ```
+
+3. List Overdue Loans:
+   - As a user, I want to see all books that are overdue so that I can remind my friends to return them.
+ 
+   SELECT BookData.Title, FriendsData.FriendName, LoanData.DueDate 
+   FROM LoanData 
+   JOIN BookData ON LoanData.BookID = BookData.BookID 
+   JOIN FriendsData ON LoanData.FriendID = FriendsData.FriendID 
+   WHERE LoanData.DueDate < DATE('now') AND LoanData.ReturnDate IS NULL;
+   ```
+
+4. Check Availability of a Specific Book:
+   - As a user, I want to check if a specific book is currently available in my collection so that I know if I can loan it out or read it myself.
+  
+   SELECT Title, IsLoanedOut 
+   FROM BookData 
+   WHERE Title = 'Dune';
+   ```
+
+5. View Top N Most Expensive Books:
+   - As a user, I want to see the top N most expensive books in my collection so that I can assess the value of my collection.
+  
+   SELECT Title, BookCost 
+   FROM BookData 
+   ORDER BY BookCost DESC 
+   LIMIT 5;  -- Replace 5 with the desired number of books
+   ```
+
+6. Search Books by Partial ISBN:
+   - As a user, I want to search for books using a partial ISBN so that I can quickly find books when I only remember part of the ISBN.
+   
+   SELECT * FROM BookData 
+   WHERE ISBN LIKE '%1234%';  -- Replace '1234' with the partial ISBN
+   ```
+
+7. Calculate Total Reading Time for Completed Books:
+   - As a user, I want to calculate the total time I have spent reading completed books so that I can understand my reading habits better.
+   
+   SELECT SUM(JULIANDAY(EndDate) - JULIANDAY(StartDate)) AS TotalReadingDays 
+   FROM ReadingProgressData 
+   WHERE Progress = 100.0;
+   ```
+
+8. Generate a List of Friends Who Have Borrowed Books:
+   - As a user, I want to see a list of friends who currently have borrowed books from me so that I can track all loans.
+   
+   SELECT DISTINCT FriendsData.FriendName 
+   FROM LoanData 
+   JOIN FriendsData ON LoanData.FriendID = FriendsData.FriendID 
+   WHERE LoanData.ReturnDate IS NULL;
+   ```
+
+9. Find the Most Borrowed Book:
+   - As a user, I want to know which book in my collection has been borrowed the most so that I can identify popular books among my friends.
+   
+   SELECT BookData.Title, COUNT(LoanData.LoanID) AS BorrowCount 
+   FROM BookData 
+   JOIN LoanData ON BookData.BookID = LoanData.BookID 
+   GROUP BY BookData.Title 
+   ORDER BY BorrowCount DESC 
+   LIMIT 1;
+   ```
+
+10. View All Books Currently Being Read:
+    - As a user, I want to see a list of all books I am currently reading so that I can manage my reading schedule.
+   
+    SELECT BookData.Title, ReadingProgressData.Progress 
+    FROM BookData 
+    JOIN ReadingProgressData ON BookData.BookID = ReadingProgressData.BookID 
+    WHERE ReadingProgressData.Progress < 100.0;
+    ```
+
+11. List All Friends Who Have Not Returned Books on Time:
+    - As a user, I want to see which friends have not returned their books on time so that I can send them reminders.
+    
+    SELECT FriendsData.FriendName, BookData.Title, LoanData.DueDate 
+    FROM LoanData 
+    JOIN FriendsData ON LoanData.FriendID = FriendsData.FriendID 
+    JOIN BookData ON LoanData.BookID = BookData.BookID 
+    WHERE LoanData.DueDate < DATE('now') AND LoanData.ReturnDate IS NULL;
+    ```
+
+12. Calculate Average Cost of Books in a Genre:
+    - As a user, I want to know the average cost of books in a specific genre to understand the cost distribution in my collection.
+    
+    SELECT GenreData.GenreName, AVG(BookData.BookCost) AS AverageCost 
+    FROM BookData 
+    JOIN GenreData ON BookData.GenreID = GenreData.GenreID 
+    WHERE GenreData.GenreName = 'Science Fiction';
+    ```
+
+
